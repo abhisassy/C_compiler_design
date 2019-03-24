@@ -2,30 +2,33 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-extern int scope_var;
+extern int  scope_var;
+
 extern int* line;
 FILE *fp;
-FILE *fp_parser;
-FILE *fp_lex;
+//FILE *fp_parser;
+//FILE *fp_lex;
+FILE* fp_symtbl;
 char current_scope[30];
-int count[30]={0};
+int  count[30]={0};
+int inside_function=0;
 struct symbol_table{
 	
 	char  attr[30];
 	char  name[31];
 	char  scope[30];
 	int   line; 
-	int   sub_blocks;
+
 	union value{
-					float f;
-					int i;
+					float  f;
+					int    i;
 					double d;
-					char c;
+					char   c;
 				}val;
 	int data_type;
 	struct symbol_table *next;
 
-}*first=NULL,*current=NULL;
+}*first=NULL,*current=NULL,*tmp;
 typedef struct symbol_table symtbl;
 
 %}
@@ -35,15 +38,22 @@ typedef struct symbol_table symtbl;
 	int          ival;
 	float        fval;
 	double       dval;
-	char 		 cval;
+	char 	     cval;
 	struct symbol_table* ptr;
 }
 
-%token T_float T_double T_main T_return T_void T_break T_continue T_if T_else T_while T_do T_fltval T_string T_fltEval T_for
+%token T_double T_main T_return T_void T_break T_continue T_if T_else T_while T_do T_string T_fltEval T_for
+%token T_relop
 %token <ival> T_intval
+%token <fval> T_fltval
 %token <ptr>  T_id
-%token <ival> T_int T_char
+%token <ival> T_int T_char T_float
 %token <cval> T_charval
+%type  <ptr>  E T F
+
+
+%left '+' '-'
+%left '/' '*'
 %%
  
 
@@ -58,18 +68,30 @@ start: main {
 
 main:     T_void T_main '(' ')' block
 	| T_int T_main '(' ')' block_r
-	| function main
+	| function {inside_function=0;} main 
+
         ;
 
-function :;
+function:  T_void {inside_function=1;} T_id  '(' args ')' block { $3->data_type=3; strcpy($3->scope,"global");}
+	 | T_int  {inside_function=1;}  T_id '(' args ')' block_r { $3->data_type=3; strcpy($3->scope,"global");}
+	 | T_float {inside_function=1;} T_id '(' args ')' block_r { $3->data_type=3; strcpy($3->scope,"global");}
+	 | T_char {inside_function=1;} T_id '(' args ')' block_r  { $3->data_type=3; strcpy($3->scope,"global");}
+	 ;
+
+args :   datatype T_id 
+       | args ',' datatype T_id
+       | ; 
+datatype : T_int | T_float | T_char ; 
 
 block:   '{' statements '}'
 	|'{' '}'
 	;
 
-block_r:  '{' statements T_return T_intval ';' '}'
-	 |'{' T_return T_intval ';' '}'
+block_r:  '{' statements T_return returnval ';' '}'
+	 |'{' T_return returnval ';' '}'
 	 ;
+
+returnval: T_intval | T_fltval | T_charval;
 
 statements:  statements statement
 	    |statement 
@@ -88,18 +110,435 @@ ifelse     : ifelse T_else T_if '(' condition ')' block
 	   | T_else T_if '(' condition ')' block
 	   ;
 
-condition :  ;
-decl :    T_int T_id '=' T_intval ';' { 
-					if(check_mult_dec($2,$1)==0)
-						assignInt($2,$1,$4);
-												
-				      }
+condition :  compare | expression  ;
+
+compare   : E T_relop E;
+
+expression: T_id '=' E ';' {	printf("hello5");find("tmp");
+				symtbl* id = find($1->name);
+				
+
+				if(id==NULL){
+
+                        			printf("\033[1;31m");
+						printf("\nerror: ");
+						printf("\033[0m");
+						printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+				   	}
+				if(id->data_type==0){
+                        		if($3->data_type==0)
+                                		id->val.i=$3->val.i;
+                        		else
+                                		id->val.i=(int)$3->val.f;
+             		       }
+               		       else if(id->data_type==1){
+            		       	      if($3->data_type==1)
+                                      		id->val.f=$3->val.f;
+                        	      else
+                                		id->val.f=(float)$3->val.i;
+                	       }
+                	       free($1);
+			   }
 	
-	| T_char T_id '=' T_charval ';' { if(check_mult_dec($2,$1)==0)
-						assignChar($2,$1,$4);
-					 }
-									
-	   ;
+	| T_id '=' T_charval ';' {
+			                symtbl* id = find($1->name);
+				
+					if(id==NULL){
+
+                        			printf("\033[1;31m");
+						printf("\nerror: ");
+						printf("\033[0m");
+						printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+				   	}
+					else if(id->data_type==0)
+                        			id->val.c=(int)$3;
+               				else if(id->data_type==2)
+                        			{id->val.c=$3;}
+					else if(id->data_type==1){
+						id->val.c=(float)$3;						
+						}
+					
+					free($1);
+						
+					
+                		 }
+        ;
+
+E:      E '+' T {	printf("evaluating");	
+                    tmp=addTemp("tmp");
+		    symtbl* id1 = find($1->name);
+
+		    if(id1==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+		   }
+		   symtbl* id2 = find($3->name);
+
+		   if(id2==NULL){
+
+                   	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$3->name);
+		   }
+
+                   if((id1->data_type)!=(id2->data_type)) {
+                            tmp->data_type=1;
+                            printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
+                            if((id1->data_type)==1) {
+                                    tmp->val.f=(id1->val.f)+(id2->val.i);
+                            }
+                            else {
+                                    tmp->val.f=(id1->val.i)+(id2->val.f);
+                            }
+                            $$=tmp;
+                    }
+                    else {
+                            if(id1->data_type==0) {
+                                    tmp->data_type=0;
+                                    tmp->val.i=(id1->val.i)+(id2->val.i);printf("\nxx%d+ %d =%d xx\n",id1->val.i,id2->val.i,tmp->val.i);
+                            }
+                            else if(id1->data_type==1) {
+                            	    tmp->data_type=1;
+                                    tmp->val.f=(id1->val.f)+(id2->val.f);
+                            }
+                            else
+                                    printf("Invalid Datatype\n");
+                            $$=tmp;
+				
+				printf("$$%d",$$->val.i);
+                    	}
+
+		  free($1);
+		  free($3);	
+                }
+
+      | E '-' T {	printf("wut");
+                    tmp=addTemp("tmp");
+		    symtbl* id1 = find($1->name);
+
+		    if(id1==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+		   }
+		   symtbl* id2 = find($3->name);
+
+		   if(id2==NULL){
+
+                   	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$3->name);
+		   }
+
+                   if((id1->data_type)!=(id2->data_type)) {
+                            tmp->data_type=1;
+                            printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
+                            if((id1->data_type)==1) {
+                                    tmp->val.f=(id1->val.f)-(id2->val.i);
+                            }
+                            else {
+                                    tmp->val.f=(id1->val.i)-(id2->val.f);
+                            }
+                            $$=tmp;
+                    }
+                    else {
+                            if(id1->data_type==0) {
+                                    tmp->data_type=0;
+                                    tmp->val.i=(id1->val.i)-(id2->val.i);
+                            }
+                            else if(id1->data_type==1) {
+                            	    tmp->data_type=1;
+                                    tmp->val.f=(id1->val.f)-(id2->val.f);
+                            }
+                            else
+                                    printf("Invalid Datatype\n");
+                            $$=tmp;
+                    	}
+		free($1);
+		free($3);
+                }
+
+        | T    {$$=$1;printf("$$:%s E evaluted %d\n",$$->name,$$->val.i);}
+        ;
+
+T:      T '*' F {
+                    tmp=addTemp("tmp");
+		    symtbl* id1 = find($1->name);
+
+		    if(id1==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+		   }
+		   symtbl* id2 = find($3->name);
+
+		   if(id2==NULL){
+
+                   	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$3->name);
+		   }
+
+                   if((id1->data_type)!=(id2->data_type)) {
+                            tmp->data_type=1;
+                            printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
+                            if((id1->data_type)==1) {
+                                    tmp->val.f=(id1->val.f)*(id2->val.i);
+                            }
+                            else {
+                                    tmp->val.f=(id1->val.i)*(id2->val.f);
+                            }
+                            $$=tmp;
+                    }
+                    else {
+                            if(id1->data_type==0) {
+                                    tmp->data_type=0;
+                                    tmp->val.i=(id1->val.i)*(id2->val.i);
+                            }
+                            else if(id1->data_type==1) {
+                            	    tmp->data_type=1;
+                                    tmp->val.f=(id1->val.f)*(id2->val.f);
+                            }
+                            else
+                                    printf("Invalid Datatype\n");
+                            $$=tmp;
+                    	}
+		free($1);
+		free($3);
+                }
+
+      | T '/' F {
+		    tmp=addTemp("tmp");
+		    symtbl* id1 = find($1->name);
+
+		    if(id1==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+		   }
+		   symtbl* id2 = find($3->name);
+
+		   if(id2==NULL){
+
+                   	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$3->name);
+		   }
+
+
+                   if((id1->data_type)!=(id2->data_type)) {
+                            tmp->data_type=1;
+                            printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
+                            if((id1->data_type)==1) {
+				    if(id2->val.i!=0)
+                                   	 tmp->val.f=(id2->val.f)/(id1->val.i);
+				    else{
+					printf("\033[1;31m");
+					printf("\nerror: ");
+					printf("\033[0m");
+					printf("Line:%d Division By ZERO .\n\n",*line);
+					}
+                            }
+                            else {
+				    if(id2->val.f!=0)
+                                   	 tmp->val.f=(id2->val.i)/(id1->val.f);
+				    else{
+					printf("\033[1;31m");
+					printf("\nerror: ");
+					printf("\033[0m");
+					printf("Line:%d Division By ZERO .\n\n",*line);
+					}
+                            }
+                            $$=tmp;
+                    }
+                    else {
+                            if(id1->data_type==0) {
+                                    tmp->data_type=0;
+				    if(id2->val.i!=0)
+                                   	 {tmp->val.i=(id2->val.i)/(id1->val.i);}//printf("\t\t\tlol%d=%d / %d",tmp->val.i,id1->val.i,id2->val.i);}
+				    else{
+					printf("\033[1;31m");
+					printf("\nerror: ");
+					printf("\033[0m");
+					printf("Line:%d Division By ZERO .\n\n",*line);
+					}
+                                    
+                            }
+                            else if(id1->data_type==1) {
+                            	    tmp->data_type=1;
+				    if(id2->val.i!=0)
+                                   	 tmp->val.f=(id2->val.f)/(id1->val.f);
+				    else{
+					printf("\033[1;31m");
+					printf("\nerror: ");
+					printf("\033[0m");
+					printf("Line:%d Division By ZERO .\n\n",*line);
+					}                                    
+					
+                            }
+                            else
+                                    printf("Invalid Datatype\n");
+                            $$=tmp;
+                    	}
+		free($1);
+		free($3);
+                }
+
+        | F	{ $$=$1; printf("$$:%s T evaluated %d\n",$$->name,$1->val.i);}
+        ;
+
+F:      '(' T_id ')' {	
+			symtbl* id = find($2->name);
+
+		    	if(id==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$2->name);
+		   	}
+			else
+                        	$$=$2;
+			
+               	     }
+
+        | T_id	     {  
+			symtbl* id = find($1->name);
+
+		    	if(id==NULL){
+
+                    	printf("\033[1;31m");
+			printf("\nerror: ");
+			printf("\033[0m");
+			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
+		   	}
+                	else
+                        	$$=$1;
+			
+                     }
+
+        | '(' T_intval ')' {
+                		tmp=addTemp("tmp");
+                		tmp->val.i=$2;
+                		tmp->data_type=0;
+				$$=tmp;
+                	   }
+        | T_intval	   {	
+                		tmp=addTemp("tmp");
+                		tmp->val.i=$1;
+                		tmp->data_type=0;
+				$$=tmp;
+				printf("$$:%s intval captured - %d\n",$$->name,$1);
+                	   }
+        | '(' T_fltval')'  {
+                		$$=addTemp("tmp");
+                		$$->val.f=$2;
+                		$$->data_type=1;
+                	   }
+        | T_fltval	   {
+                    		$$=addTemp("tmp");
+                		$$->val.f=$1;
+                		$$->data_type=1;
+                	   }
+	| '('E')'          {$$=$2;}
+        ;
+
+
+decl :   T_int  T_id commaint		    {
+                  		  		if(check_mult_dec($2,$1)==0)
+							assignInt($2,$1,0);
+					 	else
+							{find($2->name);}
+                    			    }	
+                
+        | T_int T_id '=' T_intval commaint  {
+                    				if(check_mult_dec($2,$1)==0)
+							assignInt($2,$1,$4);
+					  	else
+							{find($2->name);}
+                			    }
+
+        | T_float T_id commaflt {
+					if(check_mult_dec($2,$1)==0)
+						assignFloat($2,$1,0);
+					else
+						{find($2->name);}
+                    		
+                	        }
+        | T_float T_id '=' T_fltval commaflt {
+                    				if(check_mult_dec($2,$1)==0)
+							assignFloat($2,$1,$4);
+					 	else
+							{find($2->name);}
+                			     }
+        | T_char T_id commachar{
+                    			if(check_mult_dec($2,$1)==0)
+						assignChar($2,$1,0);
+					  else
+						{find($2->name);}
+               		       }
+        | T_char T_id '=' T_charval commachar{
+                   				 if(check_mult_dec($2,$1)==0)
+							assignChar($2,$1,$4);
+					  	else
+							{find($2->name);}
+                			     }
+        ;
+commaint:    ',' T_id commaint{
+                    			if(check_mult_dec($2,0)==0)
+						assignInt($2,0,0);
+					else
+						{find($2->name);}
+                }
+        | ',' T_id '=' T_intval commaint{
+                    				if(check_mult_dec($2,0)==0)
+							assignInt($2,0,$4);
+					  	else
+							{find($2->name);}
+                }
+        | ';'
+        ;
+commaflt:    ',' T_id commaflt{
+                    			if(check_mult_dec($2,1)==0)
+						assignFloat($2,1,0);
+					else
+						{find($2->name);}
+                	      }
+        | ',' T_id '=' T_fltval commaflt{
+                    				if(check_mult_dec($2,1)==0)
+							assignFloat($2,1,$4);
+					  	else
+							{find($2->name);}
+                			}
+        | ';'
+        ;
+commachar:    ',' T_id commachar{
+                    			if(check_mult_dec($2,2)==0)
+						assignChar($2,2,0);
+					else
+						{find($2->name);}
+                }
+        | ',' T_id '=' T_charval commachar{
+                    				if(check_mult_dec($2,2)==0)
+							assignChar($2,2,$4);
+					  	else
+							{find($2->name);}
+                			  }	
+        | ';'
+        ;
   
 %%
 
@@ -108,7 +547,8 @@ int yyerror(char* err){
 }
 
 void free_mem(){
-	printf("memory freed\n");
+	
+	printf("\033[1;32m");printf("Memory freed.\n\n");printf("\033[0m");
 	symtbl *ptr,*temp;
 	ptr=first;
 	while(ptr!=NULL){
@@ -119,11 +559,11 @@ void free_mem(){
 }
 
 void print_symboltable(){
-	fprintf(fp_lex,"\t\t\t\t\tLEX SYMBOL TABLE\n\n");
+	fprintf(fp_symtbl,"\t\t\t\t\t\t SYMBOL TABLE\n\n");
 	symtbl *ftp;
     	ftp=first;
     	while(ftp!=NULL) {
-       		write_(ftp,fp_lex);
+       		write_(ftp,fp_symtbl);
    		ftp=ftp->next;
         }
 	
@@ -133,11 +573,12 @@ void write_(symtbl * id, FILE* fp){
 	
 	char data_type[10];	
 	if(id->data_type==0) strcpy(data_type,"integer");
-       	if(id->data_type==1) strcpy(data_type,"float");
+       	if(id->data_type==1) strcpy(data_type,"float\t");
        	if(id->data_type==2) strcpy(data_type,"char\t");
-        fprintf(fp,"name=%s\t\tdatatype=%s\t\tline=%d\t\t",id->name,data_type, id->line);
+	if(id->data_type==3) strcpy(data_type,"pointer");
+        fprintf(fp,"name=%s\t\t\tdatatype=%s\t\tline=%d\t\t",id->name,data_type, id->line);
         if(id->data_type==0) fprintf(fp,"value= %d\t\t",id->val.i);
-        if(id->data_type==1) fprintf(fp,"value=%f\t\t",id->val.f);
+        if(id->data_type==1) fprintf(fp,"value=%f\t",id->val.f);
 	if(id->data_type==2) fprintf(fp,"value='%c'\t\t",id->val.c);
 	fprintf(fp,"scope=%s\n",id->scope);
          
@@ -146,27 +587,34 @@ void write_(symtbl * id, FILE* fp){
 void assignInt(symtbl *id,int type,int val){
 	id->data_type = type;
         id->val.i     = val;
-	write_(id,fp_parser);
+	//write_(id,fp_parser);
 }
 
 void assignChar(symtbl *id,int type,char val){
 	id->data_type = type;
-    	id->val.i     = val;
-	write_(id,fp_parser);
+    	id->val.c     = val;
+	//write_(id,fp_parser);
+}    
+
+void assignFloat(symtbl *id,int type,float val){
+	id->data_type = type;
+    	id->val.f     = val;
+	//write_(id,fp_parser);
 }       
 
 void addsym(symtbl* sym, char* id_name){
 	printf(" >> adding symbol '%s'..\n",id_name);
 	strcpy(sym->name,id_name);
-	strcpy(sym->scope,current_scope);
+	if(inside_function ==1)
+		{strcpy(sym->scope,"NA");}
+	else
+		strcpy(sym->scope,current_scope);
 	sym->data_type = -1;
 	sym->line      = *line;
 	sym->next      = NULL;
-	sym->sub_blocks= 0;
-}
 
-void checksym(char* id_name, YYSTYPE* id){
-	printf("Checking symbol table .. for %s\n",id_name);
+}
+symtbl* addTemp(char* id_name){
 	symtbl* new_sym;
 
 	if(first==NULL){
@@ -174,7 +622,26 @@ void checksym(char* id_name, YYSTYPE* id){
 		addsym(new_sym,id_name);
 		first = new_sym;	
 	}
-	else{
+	else{		
+		new_sym = (symtbl*)malloc(sizeof(symtbl));
+		addsym(new_sym,id_name);
+		current->next = new_sym;
+
+	}
+	current = new_sym;
+	
+	return new_sym ;
+}
+void checksym(char* id_name, YYSTYPE* id){
+	//printf("Checking symbol table .. for %s\n",id_name);
+	symtbl* new_sym;
+
+	if(first==NULL){
+		new_sym = (symtbl*)malloc(sizeof(symtbl));
+		addsym(new_sym,id_name);
+		first = new_sym;	
+	}
+	else{		
 		new_sym = (symtbl*)malloc(sizeof(symtbl));
 		addsym(new_sym,id_name);
 		current->next = new_sym;
@@ -186,20 +653,20 @@ void checksym(char* id_name, YYSTYPE* id){
 }
 
 int check_mult_dec(symtbl* id, int data_type){
-	printf("<>");
 	symtbl* ptr =first;
-	int count=0;
+	int line_ = 0;
 	while(ptr!=NULL){
-		if(strcmp(id->name,ptr->name)==0 && data_type==ptr->data_type){
+		if(strcmp(id->name,ptr->name)==0){
 			if(strcmp(ptr->scope,current_scope)==0){
-				
-				printf("xxx%d ",count);
+		
+				if(line_!=0){
 				printf("\033[1;31m");
 				printf("\nerror: ");
 				printf("\033[0m");
 				printf("Line:%d Multiple Declaration of '%s'.",*line,id->name);
-				printf(" Previous Declaration at Line:%d\n",ptr->line);					
-				return 1;
+				printf(" Previous Declaration at Line:%d\n\n",line_);					
+				return 1;}
+				line_ = ptr->line;
 			}
 			
 		}
@@ -209,20 +676,54 @@ int check_mult_dec(symtbl* id, int data_type){
 	return 0;
 }
 
+symtbl* find(char* id_name){
+	
+	symtbl* ptr = first, *res=NULL;
+	if(ptr==current){first=NULL; return NULL;}
+	while(ptr!=NULL){
+		if(strcmp(ptr->name,id_name)==0 && within_scope(ptr->scope)==1){
+			res=ptr;					
+		}	
+		if(ptr->next==current)
+			break;
+		ptr=ptr->next;
+	}
+	if(res!=NULL)
+		while(ptr->next!=current){ptr=ptr->next;}
+	ptr->next=NULL;
+	current = ptr;
+	
+	return res;
+}
+
+int within_scope(char* id_scope){
+	int len_c = strlen(current_scope), len_id = strlen(id_scope);
+	if(len_id>len_c)
+		return 0;
+	if(len_id==len_c)
+		if(strcmp(id_scope,current_scope)==0) return 1;
+	for(int i=0;i<len_id;i++){
+		if(current_scope[i]!=id_scope[i])
+			return 0;	
+	}
+	return 1;
+
+}
+
 int main(){
 	printf("\033[1;32m");
-	printf("\n\nParser started..\n\n");
+	printf("\n\nLex and Parser started..\n\n");
 	printf("\033[0m");
-	fp  = fopen("preprocessed_code.c","w");
-	fp_lex = fopen("Lex_symbol_table.txt","w");
-	fp_parser = fopen("Parser_symbol_table.txt","w");
+	fp  = fopen("clean_code/preprocessed_code.c","w");
+	fp_symtbl = fopen("symbol_table/symbol_table.txt","w");
+	//fp_parser = fopen("symbol_table/Parser_symbol_table.txt","w");
 	
-	fprintf(fp_parser,"\t\t\t\t\tPARSER SYMBOL TABLE\n\n");	
+	//fprintf(fp_parser,"\t\t\t\t\tPARSER SYMBOL TABLE\n\n");	
 
 	yyparse();
 	fclose(fp);
-	fclose(fp_lex);
-	fclose(fp_parser);
+	fclose(fp_symtbl);
+	//fclose(fp_parser);
 	return 0;	
 
 }

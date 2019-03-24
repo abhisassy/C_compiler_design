@@ -1,7 +1,0 @@
-					LEX SYMBOL TABLE
-
-name=a		datatype=char			line=8		value='0'		scope=1
-name=a		datatype=integer		line=9		value= 1		scope=1
-name=a		datatype=char			line=11		value='1'		scope=1.1
-name=x		datatype=integer		line=16		value= 2		scope=1.2
-name=x		datatype=integer		line=19		value= 4		scope=1.3
