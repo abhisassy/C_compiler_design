@@ -2,5 +2,5 @@
 
 name=c			datatype=char			line=5		value='a'		scope=1
 name=i			datatype=float			line=6		value=5.500000	scope=1
-name=x			datatype=float			line=10		value=0.000000	scope=1.1
+name=x			datatype=float			line=10		value=121.000000	scope=1.1
 name=x			datatype=integer		line=13		value= 0		scope=1

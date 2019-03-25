@@ -26,7 +26,7 @@ int flag_id=0;
 extern int* line;
 FILE *fp;
 /*FILE *fp_parser;*/
-/*FILE *fp_lex;*/
+FILE *fp_lex;
 FILE* fp_symtbl;
 char current_scope[30];
 int  count[30]={0};
@@ -527,19 +527,16 @@ void write_(symtbl * id, FILE* fp){
 void assignInt(symtbl *id,int type,int val){
 	id->data_type = type;
         id->val.i     = val;
-	//write_(id,fp_parser);
 }
 
 void assignChar(symtbl *id,int type,char val){
 	id->data_type = type;
     	id->val.c     = val;
-	//write_(id,fp_parser);
 }    
 
 void assignFloat(symtbl *id,int type,float val){
 	id->data_type = type;
     	id->val.f     = val;
-	//write_(id,fp_parser);
 }       
 
 void addsym(symtbl* sym, char* id_name){
@@ -654,22 +651,22 @@ int main(){
 	printf("\033[1;32m");
 	printf("\n\nLex and Parser started..\n\n");
 	printf("\033[0m");
-	fp  = fopen("clean_code/preprocessed_code.c","w");
+	fp        = fopen("clean_code/preprocessed_code.c","w");
 	fp_symtbl = fopen("symbol_table/symbol_table.txt","w");
-	//fp_parser = fopen("symbol_table/Parser_symbol_table.txt","w");
+	fp_lex    = fopen("symbol_table/tokens.txt","w"); 
+	fprintf(fp_lex,"\n\t\t TOKENS LIST\n\n") ;
 	
-	//fprintf(fp_parser,"\t\t\t\t\tPARSER SYMBOL TABLE\n\n");	
-
 	yyparse();
 	fclose(fp);
 	fclose(fp_symtbl);
-	//fclose(fp_parser);
+	fclose(fp_lex);
+
 	return 0;	
 
 }
 
 
-#line 673 "y.tab.c"
+#line 670 "y.tab.c"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -880,7 +877,7 @@ case 1:
 				print_symboltable();
 				free_mem();
 				return 0;
-			 }
+	    }
 break;
 case 5:
 #line 72 "parser.y"
@@ -1484,7 +1481,7 @@ case 96:
 						free(yystack.l_mark[-1].ptr);
                 		}
 break;
-#line 1488 "y.tab.c"
+#line 1485 "y.tab.c"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

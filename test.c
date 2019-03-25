@@ -7,7 +7,7 @@ void main(){
 	i=2;
 	i=3;
 	i=4;
-	{i=5.5; float x;}
+	{i=5.5; float x = 12.1E+1;}
 	//float x;
 	//x=1+2*2-1;
 	int x;

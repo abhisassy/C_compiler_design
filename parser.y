@@ -7,7 +7,7 @@ int flag_id=0;
 extern int* line;
 FILE *fp;
 //FILE *fp_parser;
-//FILE *fp_lex;
+FILE *fp_lex;
 FILE* fp_symtbl;
 char current_scope[30];
 int  count[30]={0};
@@ -778,12 +778,15 @@ int main(){
 	printf("\033[1;32m");
 	printf("\n\nLex and Parser started..\n\n");
 	printf("\033[0m");
-	fp  = fopen("clean_code/preprocessed_code.c","w");
+	fp        = fopen("clean_code/preprocessed_code.c","w");
 	fp_symtbl = fopen("symbol_table/symbol_table.txt","w");
+	fp_lex    = fopen("symbol_table/tokens.txt","w"); 
+	fprintf(fp_lex,"\n\t\t TOKENS LIST\n\n") ;
 	
 	yyparse();
 	fclose(fp);
 	fclose(fp_symtbl);
+	fclose(fp_lex);
 
 	return 0;	
 
