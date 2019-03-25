@@ -1,6 +1,6 @@
 						 SYMBOL TABLE
 
-name=k			datatype=integer		line=59		value= 0		scope=1
-name=a			datatype=integer		line=61		value= 8		scope=1
-name=b			datatype=integer		line=62		value= 2		scope=1
-name=c			datatype=integer		line=63		value= 6		scope=1
+name=c			datatype=char			line=5		value='a'		scope=1
+name=i			datatype=float			line=6		value=5.500000	scope=1
+name=x			datatype=float			line=10		value=0.000000	scope=1.1
+name=x			datatype=integer		line=13		value= 0		scope=1

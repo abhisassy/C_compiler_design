@@ -6,7 +6,7 @@
 int line_flag = 0;
 
 extern FILE * fp;
-extern char current_scope[30];
+extern char current_scope[30]={'1','\0'};
 extern int count[30];
 extern int inside_function;
 int scope_var=0;
@@ -51,6 +51,7 @@ int* line = &yylineno;
 "while" 	{ line_flag = 1; fprintf(fp,"%s",yytext); return T_while;}
 "break" 	{ line_flag = 1; fprintf(fp,"%s",yytext); return T_break;}
 "continue" 	{ line_flag = 1; fprintf(fp,"%s",yytext); return T_continue;}
+"printf"	{ line_flag = 1; fprintf(fp,"%s",yytext); return T_printf;}	
 
 
 
