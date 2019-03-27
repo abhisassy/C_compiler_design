@@ -20,7 +20,6 @@
 #define T_char 276
 #define T_float 277
 #define T_charval 278
-#define T 279
 #ifdef YYSTYPE
 #undef  YYSTYPE_IS_DECLARED
 #define YYSTYPE_IS_DECLARED 1

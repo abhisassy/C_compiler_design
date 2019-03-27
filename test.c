@@ -1,18 +1,25 @@
 #include <stdio.h>
 
-
-void main(){
+void fun(int x, float cc){
+	int c=1+1;
+}
+int main(){
 	char c=97;
 	float i=1;
 	i=2;
 	i=3;
 	i=4;
-	{i=5.5; float x = 12.1E+1;}
+	{i=5.5; float x = 12.1e-1;}
 	//float x;
 	//x=1+2*2-1;
 	int x;
 	printf("");
-	while(x>1){}
+	while(x>1){
+		int y;
+		break;
+		int z;
+		continue;
+	}
 
 	//printf("%d",x);
 	/*int i;
@@ -29,4 +36,5 @@ void main(){
 
 
 	}*/
+	return 0;
 }

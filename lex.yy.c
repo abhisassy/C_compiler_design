@@ -1017,47 +1017,47 @@ YY_RULE_SETUP
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 120 "lexical_analyser.l"
+#line 121 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp,"%s",yytext); }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 122 "lexical_analyser.l"
+#line 123 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp_lex,"<%s,%s>\n",yytext,yytext) ;fprintf(fp,"%s",yytext); return yytext[0];}
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 123 "lexical_analyser.l"
+#line 124 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp_lex,"<%s,%s>\n",yytext,yytext) ;fprintf(fp,"%s",yytext); return yytext[0]; }			
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 125 "lexical_analyser.l"
+#line 126 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp_lex,"<%s,T_relop>\n",yytext) ; fprintf(fp,"%s",yytext); return T_relop; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 127 "lexical_analyser.l"
+#line 128 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp_lex,"<%s,%s>\n",yytext,yytext) ;fprintf(fp,"%s",yytext);}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 128 "lexical_analyser.l"
+#line 129 "lexical_analyser.l"
 { line_flag = 1; fprintf(fp_lex,"<%s,%s>\n",yytext,yytext) ;fprintf(fp,"%s",yytext);}
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 131 "lexical_analyser.l"
+#line 132 "lexical_analyser.l"
 { ;}
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 132 "lexical_analyser.l"
+#line 133 "lexical_analyser.l"
 { fprintf(fp," ");}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 134 "lexical_analyser.l"
+#line 135 "lexical_analyser.l"
 { if(line_flag == 1) 
 	       {
 	       	fprintf(fp,"%s",yytext);
@@ -1067,12 +1067,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 141 "lexical_analyser.l"
+#line 142 "lexical_analyser.l"
 {printf("\nLine:%d Syntax error :%s\n",yylineno,yytext);}      
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 142 "lexical_analyser.l"
+#line 143 "lexical_analyser.l"
 ECHO;
 	YY_BREAK
 #line 1079 "lex.yy.c"
@@ -1965,7 +1965,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 142 "lexical_analyser.l"
+#line 143 "lexical_analyser.l"
 
 
 

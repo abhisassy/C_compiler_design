@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 extern int  scope_var;
-int flag_id=0;
 extern int* line;
+int flag_id=0;
 FILE *fp;
-//FILE *fp_parser;
 FILE *fp_lex;
-FILE* fp_symtbl;
+FILE *fp_symtbl;
 char current_scope[30];
 int  count[30]={0};
 int inside_function=0;
+
 struct symbol_table{
 	
 	char  attr[30];
@@ -49,7 +50,8 @@ typedef struct symbol_table symtbl;
 %token <ptr>  T_id
 %token <ival> T_int T_char T_float
 %token <cval> T_charval
-%type  <ptr>  E T F
+%type  <ptr>  E F
+%type  <ival> datatype
 
 
 %left '+' '-'
@@ -79,17 +81,17 @@ function   : T_void  {inside_function=1;} T_id '(' params ')' block   { $3->data
 	   | T_char  {inside_function=1;} T_id '(' params ')' block_r { $3->data_type=3; strcpy($3->scope,"global");}
 	   ;
 
-params     : datatype T_id 
-           | params ',' datatype T_id
+params     : datatype T_id {if($1==0){assignInt($2,$1,0);} if($1==2){assignChar($2,$1,0);} if($1==1){assignFloat($2,$1,0);}}		
+           | params ',' datatype T_id {if($3==0){assignInt($4,$3,0);} if($3==2){assignChar($4,$3,'\0');} if($3==1){assignFloat($4,$3,0);}}	
            | ; 
-datatype   : T_int | T_float | T_char ; 
+datatype   : T_int {$$=$1;}| T_float {$$=$1;} | T_char {$$=$1;}; 
 
 block      : '{' statements '}'
 	   | '{' '}'
 	   ;
 
-block_r    :  '{' statements T_return returnval ';' '}'
-	   |'{' T_return returnval ';' '}'
+block_r    : '{' statements T_return returnval ';' '}'
+	   | '{' T_return returnval ';' '}'
 	   ;
 
 returnval  : T_intval | T_fltval | T_charval;
@@ -103,10 +105,21 @@ print      : T_printf '(' T_string  ')' ';'  | T_printf '(' T_string ',' args ')
 
 args       : args T_id | args T_intval | args T_charval | args T_fltval | T_id|T_intval|T_charval|T_fltval; 
 
-while_st   : T_while '(' condition ')' block ;
+while_st   : T_while '(' condition ')' block_l ;
 
-do_while   : T_do block T_while '(' condition ')' ';'
+do_while   : T_do block_l T_while '(' condition ')' ';'
 	   ;
+
+block_l	   : '{' stmnts_l '}'
+	   | '{' '}'
+	   ;
+
+stmnts_l   : stmnts_l stmnt_l | stmnt_l ;
+
+stmnt_l    : decl | block | if_st | while_st | do_while | expression | print | loop_keywrd | ';' ;
+
+loop_keywrd: T_break ';'  | T_continue ';' ;
+
 if_st	   : T_if '(' condition ')' block;
 	   | T_if '(' condition ')' block T_else block ;
 	   | T_if '(' condition ')' block ifelse T_else block ;	

@@ -2,6 +2,24 @@
 		 TOKENS LIST
 
 <void,T_void>
+<fun,T_id>
+<(,(>
+<int,T_int>
+<x,T_id>
+<,,,>
+<float,T_float>
+<cc,T_id>
+<),)>
+<{,{>
+<int,T_int>
+<c,T_id>
+<=,=>
+<1,T_intval>
+<+,+>
+<1,T_intval>
+<;,;>
+<},}>
+<int,T_int>
 <main,T_main>
 <(,(>
 <),)>
@@ -54,5 +72,18 @@
 <1,T_intval>
 <),)>
 <{,{>
+<int,T_int>
+<y,T_id>
+<;,;>
+<break,T_break>
+<;,;>
+<int,T_int>
+<z,T_id>
+<;,;>
+<continue,T_continue>
+<;,;>
 <},}>
+<return,T_return>
+<0,T_intval>
+<;,;>
 <},}>
