@@ -9,17 +9,11 @@ int flag_id=0;
 FILE *fp;
 FILE *fp_lex;
 FILE *fp_symtbl;
+FILE *fp_icg; 
 char current_scope[30];
 int  count[30]={0};
 int  inside_function=0;
-
-struct abstract_syntax_tree{
-
-	struct abstact_syntax_tree *left;
- 	struct abstact_syntax_tree *right;
- 	char *token;
-}*tree;
-typedef struct abstract_syntax_tree abstree;
+int  ln=0;
 
 struct symbol_table{
 	
@@ -48,6 +42,7 @@ typedef struct symbol_table symtbl;
 	float        fval;
 	double       dval;
 	char 	     cval;
+	char	     sval[300];
 	struct symbol_table* ptr;
 }
 
@@ -60,6 +55,7 @@ typedef struct symbol_table symtbl;
 %token <cval> T_charval
 %type  <ptr>  E F
 %type  <ival> datatype
+%type  <sval> T_relop T_if T_while
 
 
 %left '+' '-'
@@ -113,7 +109,15 @@ print      : T_printf '(' T_string  ')' ';'  | T_printf '(' T_string ',' args ')
 
 args       : args T_id | args T_intval | args T_charval | args T_fltval | T_id|T_intval|T_charval|T_fltval; 
 
-while_st   : T_while '(' condition ')' block_l ;
+while_st   : T_while   { strcpy($1,""); fprintf(fp_icg,"\n");strcat($1,newLabel(1)); fprintf(fp_icg,": while "); } '(' 
+	     condition { fprintf(fp_icg," go to ");  
+			 strcat($1,newLabel(1)); 
+			 fprintf(fp_icg,"\ngo to "); 
+			 strcat($1,newLabel(1));
+			 fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);
+		       } ')' 
+	     block_l   { fprintf(fp_icg,"go to "); fprintf(fp_icg,"%c%c",$1[0],$1[1]); fprintf(fp_icg,"\n%c%c:",$1[4],$1[5]); } 
+	   ;
 
 do_while   : T_do block_l T_while '(' condition ')' ';'
 	   ;
@@ -128,9 +132,44 @@ stmnt_l    : decl | block | if_st | while_st | do_while | expression | print | l
 
 loop_keywrd: T_break ';'  | T_continue ';' ;
 
-if_st	   : T_if '(' condition ')' block;
-	   | T_if '(' condition ')' block T_else block ;
-	   | T_if '(' condition ')' block ifelse T_else block ;	
+if_st	   :  T_if { fprintf(fp_icg,"\nif "); strcpy($1,""); }
+	     '(' 
+	      condition { fprintf(fp_icg," go to ");  
+			  strcat($1,newLabel(1)); 
+			  fprintf(fp_icg,"\ngo to "); 
+			  strcat($1,newLabel(1));
+			  fprintf(fp_icg,"\n%c%c:",$1[0],$1[1]);	
+			}
+             ')' 
+	     block      {
+			  strcat($1,newLabel(0)); 
+		          fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[4],$1[5]);
+			  fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);			  
+                        }
+	     T_else 
+	     block      {
+			  		
+			  fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[4],$1[5]);
+			  fprintf(fp_icg,"\n%c%c:",$1[4],$1[5]);
+			  strcpy($1,"");
+			}
+           
+	   | T_if { fprintf(fp_icg,"if "); } 
+	     '(' 
+              condition { fprintf(fp_icg," go to ");  
+			  strcat($1,newLabel(1)); 
+			  fprintf(fp_icg,"\ngo to "); 
+			  strcat($1,newLabel(1));
+			  fprintf(fp_icg,"\n%c%c:",$1[0],$1[1]);	
+			}
+              ')'  
+              block     {
+		          fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[2],$1[3]);
+			  fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);
+			  strcpy($1,"");			  
+                        }
+	   ;
+	  // | T_if { fprintf(fp_icg,"if "); } '(' condition ')' block ifelse T_else block ;	
 	   ;
 ifelse     : ifelse T_else T_if '(' condition ')' block
 	   | T_else T_if '(' condition ')' block
@@ -138,7 +177,7 @@ ifelse     : ifelse T_else T_if '(' condition ')' block
 
 condition  : compare | expression  ;
 
-compare    : E T_relop E;
+compare    : E T_relop E    { fprintf(fp_icg,"%d %s %d",$1->val.i,$2,$3->val.i); }
 
 expression : T_id '=' E ';' {					
 				symtbl* id = find($1->name);
@@ -163,6 +202,9 @@ expression : T_id '=' E ';' {
                         	      else
                                 		id->val.f=(float)$3->val.i;
                 	       }
+			       
+			       fprintf(fp_icg,"%s = %d\n",$1->name,$3->val.i);
+//fprintf(fp_icg,"\nid%s = e%s\n",$1->name,$3->name);
                 	       free($1);
 			       free($3);
 			   }
@@ -194,7 +236,8 @@ expression : T_id '=' E ';' {
 E:      E '+' E {	
 		   printf("evaluating+\n");	
                    tmp=addTemp("tmp");
-		   
+		    
+
                    if(($1->data_type)!=($3->data_type)) {
                             tmp->data_type=1;
                             printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
@@ -221,7 +264,7 @@ E:      E '+' E {
                                     printf("Invalid Datatype\n");
                     	}
 
-		
+		 
 		  free($3);
 		  free(tmp);	
                 }
@@ -417,7 +460,7 @@ F:      '(' T_id ')' {
 				tmp->data_type=0;
                         	$$=tmp;
 			    }
-			
+			//fprintf(fp_icg," %s ",$1->name);
                      }
 
         | '(' T_intval ')' {
@@ -670,28 +713,7 @@ void write_(symtbl * id, FILE* fp){
 	fprintf(fp,"scope=%s\n",id->scope);
          
 }
-/*void makenode(symtbl *left, symtbl *right, char *token){
-	abs *newnode = (abs*)malloc(sizeof(abs));
- 	char *newstr = (char *)malloc(strlen(token)+1);
-	strcpy(newstr, token);
-        newnode->left = left;
-        newnode->right = right;
-        newnode->token = newstr;
-        tree = newnode;
-}
-void printtree(node *tree){
-	int i;
-	if (tree->left || tree->right)
- 		printf("(");
- 	printf(" %s ", tree->token);
- 	if (tree->left)
-		printtree(tree->left);
- 	if (tree->right)
- 		printtree(tree->right);
- 	if (tree->left || tree->right)
-		printf(")");
-}
-*/
+
 void assignInt(symtbl *id,int type,int val){
 	id->data_type = type;
         id->val.i     = val;
@@ -815,20 +837,34 @@ int within_scope(char* id_scope){
 
 }
 
+char* newLabel(int print)
+{
+	char *s = (char*)malloc(4*sizeof(char));
+	sprintf(s,"L%d",ln);
+	if(print==1){fprintf(fp_icg,"%s",s);}
+	ln++;
+	return s;
+}
+
 int main(){
 	printf("\033[1;32m");
 	printf("\n\nLex and Parser started..\n\n");
 	printf("\033[0m");
-	fp        = fopen("clean_code/preprocessed_code.c","w");
+	fp        = fopen("intermediate_code/preprocessed_code.c","w");
 	fp_symtbl = fopen("symbol_table/symbol_table.txt","w");
 	fp_lex    = fopen("symbol_table/tokens.txt","w"); 
+	fp_icg    = fopen("intermediate_code/icg.txt","w");
+
 	fprintf(fp_lex,"\n\t\t TOKENS LIST\n\n") ;
+	fprintf(fp_icg,"\n\t\t Intermediate Code Generation\n\n");
+	fprintf(fp_icg,".begin\n");
 	
 	yyparse();
+	fprintf(fp_icg,".end\n");
 	fclose(fp);
 	fclose(fp_symtbl);
 	fclose(fp_lex);
-
+	fclose(fp_icg);
 	return 0;	
 
 }

@@ -20,6 +20,8 @@ int main(){
 		int z;
 		continue;
 	}
+	if(1>2){}else{}
+	if(1>2){}
 
 	//printf("%d",x);
 	/*int i;

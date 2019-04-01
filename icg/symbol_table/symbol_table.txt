@@ -1,0 +1,5 @@
+						 SYMBOL TABLE
+
+name=a			datatype=integer		line=4		value= 8		scope=1
+name=b			datatype=integer		line=4		value= 0		scope=1
+name=c			datatype=integer		line=4		value= 0		scope=1
