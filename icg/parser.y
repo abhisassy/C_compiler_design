@@ -13,7 +13,8 @@ FILE *fp_icg;
 char current_scope[30];
 int  count[30]={0};
 int  inside_function=0;
-int  ln=0;
+int  ln=0,tempno=0;
+char buffer[100];
 
 struct symbol_table{
 	
@@ -65,7 +66,8 @@ typedef struct symbol_table symtbl;
 
 start: main { 
 				printf("\033[1;32m");
-				printf("\n\nParsing Done.\n\n");
+				printf("\n\nParsing Done.\n");
+				printf("\nICG Generated.\n\n");								
 				printf("\033[0m");
 				print_symboltable();
 				free_mem();
@@ -203,8 +205,9 @@ expression : T_id '=' E ';' {
                                 		id->val.f=(float)$3->val.i;
                 	       }
 			       
-			       fprintf(fp_icg,"%s = %d\n",$1->name,$3->val.i);
-//fprintf(fp_icg,"\nid%s = e%s\n",$1->name,$3->name);
+			       
+			       fprintf(fp_icg,"%s = t%d\n",$1->name,--tempno); 
+			       tempno++;
                 	       free($1);
 			       free($3);
 			   }
@@ -263,8 +266,10 @@ E:      E '+' E {
                             else
                                     printf("Invalid Datatype\n");
                     	}
-
-		 
+		
+		  sprintf(buffer,"t%d",tempno++);	
+		  fprintf(fp_icg,"%s = %s + %s\n",buffer,$1->name,$3->name);
+		  strcpy($1->name,buffer);
 		  free($3);
 		  free(tmp);	
                 }
@@ -299,6 +304,9 @@ E:      E '+' E {
                                     printf("Invalid Datatype\n");
                             
                     	}
+		sprintf(buffer,"t%d",tempno++);	
+		fprintf(fp_icg,"%s = %s - %s\n",buffer,$1->name,$3->name);
+		strcpy($1->name,buffer);
 		
 		free($3);
 		free(tmp);
@@ -333,7 +341,9 @@ E:      E '+' E {
                                     printf("Invalid Datatype\n");
                           
                     	}
-		
+		sprintf(buffer,"t%d",tempno++);	
+		fprintf(fp_icg,"%s = %s * %s\n",buffer,$1->name,$3->name);
+		strcpy($1->name,buffer);
 		free($3);
 		free(tmp);
                 }
@@ -353,6 +363,9 @@ E:      E '+' E {
                    tmp->val.i=($1->val.i)%($3->val.i);
                    $1->val.i=tmp->val.i;
 	           }
+		sprintf(buffer,"t%d",tempno++);	
+		fprintf(fp_icg,"%s = %s % %s\n",buffer,$1->name,$3->name);
+		strcpy($1->name,buffer);
 		free($3);
 		free(tmp);
                 }
@@ -416,7 +429,9 @@ E:      E '+' E {
                                     printf("Invalid Datatype\n");
                             
                     	}
-		
+		sprintf(buffer,"t%d",tempno++);	
+		fprintf(fp_icg,"%s = %s / %s\n",buffer,$1->name,$3->name);
+		strcpy($1->name,buffer);
 		free($3);
 		free(tmp);
                 }
@@ -435,7 +450,7 @@ F:      '(' T_id ')' {
 			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$2->name);
 		   	}
 			else{
-				tmp = addTemp("tmp");
+				tmp = addTemp($2->name);
 				tmp->val.i=id->val.i;
 				tmp->data_type=0;
                         	$$=tmp;
@@ -455,38 +470,39 @@ F:      '(' T_id ')' {
 			printf("Line:%d Variable '%s' undeclared .\n\n",*line,$1->name);
 		   	}
                 	else{
-				tmp = addTemp("tmp");
+				tmp = addTemp($1->name);
 				tmp->val.i=id->val.i;
 				tmp->data_type=0;
                         	$$=tmp;
 			    }
-			//fprintf(fp_icg," %s ",$1->name);
+			
+
                      }
 
-        | '(' T_intval ')' {
-                		tmp=addTemp("tmp");
+        | '(' T_intval ')' {	sprintf(buffer,"%d",$2);
+                		tmp=addTemp(buffer);
                 		tmp->val.i=$2;
                 		tmp->data_type=0;
 				$$=tmp;
 				printf("$$:%s intval captured - %d\n",$$->name,$2);
                 	   }
-        | T_intval	   {	
-                		tmp=addTemp("tmp");                		
+        | T_intval	   {	sprintf(buffer,"%d",$1);
+                		tmp=addTemp(buffer);                		
 				tmp->val.i=$1;
                 		tmp->data_type=0;
 				$$=tmp;
 				printf("$$:%s intval captured - %d\n",$$->name,$1);
 	
                 	   }
-        | '(' T_fltval')'  {
-                		tmp=addTemp("tmp");                		
+        | '(' T_fltval')'  {	sprintf(buffer,"%f",$2);
+                		tmp=addTemp(buffer);                		
 				tmp->val.f=$2;
                 		tmp->data_type=1;
 				$$=tmp;
 				printf("$$:%s fltval captured - %d\n",$$->name,$2);
                 	   }
-        | T_fltval	   {
-                    		tmp=addTemp("tmp");                		
+        | T_fltval	   {	sprintf(buffer,"%f",$1);
+                    		tmp=addTemp(buffer);                		
 				tmp->val.f=$1;
                 		tmp->data_type=1;
 				$$=tmp;
@@ -844,6 +860,21 @@ char* newLabel(int print)
 	if(print==1){fprintf(fp_icg,"%s",s);}
 	ln++;
 	return s;
+}
+
+symtbl* getsympos(char* name){
+	
+	symtbl* ptr = first;
+	while(ptr!=NULL){
+		
+		if(strcmp(ptr->name,name)==0){
+			return ptr;					
+		}	
+		ptr=ptr->next;
+	}
+	
+	return NULL;
+
 }
 
 int main(){

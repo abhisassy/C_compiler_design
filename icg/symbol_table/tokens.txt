@@ -1,70 +1,56 @@
 
 		 TOKENS LIST
 
-<void,T_void>
-<main,T_main>
+<T_void,void>
+<T_main,main>
 <(,(>
 <),)>
 <{,{>
-<int,T_int>
-<a,T_id>
+<T_int,int>
+<T_id,(a) 0xf7e1cef0>
+<=,=>
+<T_intval,1>
 <,,,>
-<b,T_id>
+<T_id,(b) 0xf7e1cf70>
 <=,=>
-<0,T_intval>
+<T_intval,2>
 <,,,>
-<c,T_id>
+<T_id,(c) 0xf7e1cff0>
 <=,=>
-<0,T_intval>
-<;,;>
-<if,T_if>
-<(,(>
-<1,T_intval>
-<>,T_relop>
-<2,T_intval>
-<),)>
-<{,{>
-<a,T_id>
+<T_intval,3>
+<,,,>
+<T_id,(d) 0xf7e1d070>
 <=,=>
-<0,T_intval>
-<;,;>
-<if,T_if>
-<(,(>
-<3,T_intval>
-<>,T_relop>
-<4,T_intval>
-<),)>
-<{,{>
-<a,T_id>
+<T_intval,0>
+<,,,>
+<T_id,(e) 0xf7e1d0f0>
 <=,=>
-<4,T_intval>
-<;,;>
-<},}>
-<else,T_else>
-<{,{>
-<a,T_id>
+<T_intval,0>
+<,,,>
+<T_id,(f) 0xf7e1d170>
 <=,=>
-<8,T_intval>
-<;,;>
-<},}>
-<},}>
-<else,T_else>
-<{,{>
-<a,T_id>
+<T_intval,0>
+<,,,>
+<T_id,(G) 0xf7e1d1f0>
 <=,=>
-<2,T_intval>
+<T_intval,0>
 <;,;>
-<},}>
-<while,T_while>
-<(,(>
-<1,T_intval>
-<>,T_relop>
-<2,T_intval>
-<),)>
-<{,{>
-<a,T_id>
+<T_id,(a) 0xf7e1cef0>
 <=,=>
-<8,T_intval>
+<T_intval,1>
+<+,+>
+<T_intval,2>
+<*,*>
+<T_intval,3>
+</,/>
+<T_intval,40>
 <;,;>
-<},}>
+<T_id,(a) 0xf7e1cef0>
+<=,=>
+<T_id,(b) 0xf7e1cf70>
+<+,+>
+<T_id,(c) 0xf7e1cff0>
+<-,->
+<T_id,(d) 0xf7e1d070>
+<;,;>
 <},}>

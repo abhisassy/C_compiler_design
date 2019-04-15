@@ -2,27 +2,11 @@
 		 Intermediate Code Generation
 
 .begin
-
-if 1 > 2 go to L0
-go to L1
-L0:a = 0
-
-if 3 > 4 go to L2
-go to L3
-L2:a = 4
-
-go to L4
-L3:a = 8
-
-go to L4
-L4:
-go to L5
-L1:a = 2
-
-go to L5
-L5:
-L6: while 1 > 2 go to L7
-go to L8
-L7:a = 8
-go to L6
-L8:.end
+t0 = 2 * 3
+t1 = t0 / 40
+t2 = 1 + t1
+a = t2
+t3 = b + c
+t4 = t3 - d
+a = t4
+.end
