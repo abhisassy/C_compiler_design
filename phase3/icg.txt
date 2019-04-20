@@ -2,6 +2,7 @@
 		 Intermediate Code Generation
 
 .begin
+a = 0
 t0 = 2 * 3
 t1 = t0 / 40
 t2 = 1 + t1
@@ -9,4 +10,14 @@ a = t2
 t3 = b + c
 t4 = t3 - d
 a = t4
-.end
+iffalse 1 > 2 go to L0
+a = 0
+
+L0:iffalse 2 > 3 go to L1
+b = 0
+
+L1:b = 77
+L2: iffalse 1 > 2 go to L3
+b = 9
+go to L2
+L3:.end

@@ -13,7 +13,7 @@ FILE *fp_icg;
 char current_scope[30];
 int  count[30]={0};
 int  inside_function=0;
-int  ln=0,tempno=0;
+int  ln=0,tempno=0,labelno=0;
 char buffer[100];
 
 struct symbol_table{
@@ -56,7 +56,7 @@ typedef struct symbol_table symtbl;
 %token <cval> T_charval
 %type  <ptr>  E F
 %type  <ival> datatype
-%type  <sval> T_relop T_if T_while
+%type  <sval> T_relop T_if T_while condition
 
 
 %left '+' '-'
@@ -112,14 +112,15 @@ print      : T_printf '(' T_string  ')' ';'  | T_printf '(' T_string ',' args ')
 
 args       : args T_id | args T_intval | args T_charval | args T_fltval | T_id|T_intval|T_charval|T_fltval; 
 
-while_st   : T_while   { strcpy($1,""); fprintf(fp_icg,"\n");strcat($1,newLabel(1)); fprintf(fp_icg,": while "); } '(' 
+while_st   : T_while   { sprintf(buffer,"L%d",labelno); labelno++; fprintf(fp_icg,"%s: ",buffer);fprintf(fp_icg,"iffalse "); strcpy($1,buffer); } 
+	     '(' 
 	     condition { fprintf(fp_icg," go to ");  
-			 strcat($1,newLabel(1)); 
-			 fprintf(fp_icg,"\ngo to "); 
-			 strcat($1,newLabel(1));
-			 fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);
+			 sprintf(buffer,"L%d",labelno); labelno++;		  
+			 fprintf(fp_icg,"%s\n",buffer); 	
+			 strcpy($4,buffer);
 		       } ')' 
-	     block_l   { fprintf(fp_icg,"go to "); fprintf(fp_icg,"%c%c",$1[0],$1[1]); fprintf(fp_icg,"\n%c%c:",$1[4],$1[5]); } 
+	     block_l   { fprintf(fp_icg,"go to %s",$1);  
+			 fprintf(fp_icg,"\n%s:",$4); } 
 	   ;
 
 do_while   : T_do block_l T_while '(' condition ')' ';'
@@ -131,52 +132,48 @@ block_l	   : '{' stmnts_l '}'
 
 stmnts_l   : stmnts_l stmnt_l | stmnt_l ;
 
-stmnt_l    : decl | block | if_st | while_st | do_while | expression | print | loop_keywrd | ';' ;
+stmnt_l    : decl | block | if_st_l | while_st | do_while | expression | print | loop_keywrd | ';' ;
 
 loop_keywrd: T_break ';'  | T_continue ';' ;
 
-if_st	   :  T_if { fprintf(fp_icg,"\nif "); strcpy($1,""); }
-	     '(' 
-	      condition { fprintf(fp_icg," go to ");  
-			  strcat($1,newLabel(1)); 
-			  fprintf(fp_icg,"\ngo to "); 
-			  strcat($1,newLabel(1));
-			  fprintf(fp_icg,"\n%c%c:",$1[0],$1[1]);	
-			}
-             ')' 
-	     block      {
-			  strcat($1,newLabel(0)); 
-		          fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[4],$1[5]);
-			  fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);			  
-                        }
-	     T_else 
-	     block      {
-			  		
-			  fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[4],$1[5]);
-			  fprintf(fp_icg,"\n%c%c:",$1[4],$1[5]);
-			  strcpy($1,"");
-			}
-           
-	   | T_if { fprintf(fp_icg,"if "); } 
+       
+if_st	   : T_if { fprintf(fp_icg,"iffalse "); } 
 	     '(' 
               condition { fprintf(fp_icg," go to ");  
-			  strcat($1,newLabel(1)); 
-			  fprintf(fp_icg,"\ngo to "); 
-			  strcat($1,newLabel(1));
-			  fprintf(fp_icg,"\n%c%c:",$1[0],$1[1]);	
+			  sprintf(buffer,"L%d",labelno); labelno++;		  
+			  fprintf(fp_icg,"%s\n",buffer); 	
+			  strcpy($1,buffer);
 			}
               ')'  
-              block     {
-		          fprintf(fp_icg,"\ngo to "); fprintf(fp_icg,"%c%c",$1[2],$1[3]);
-			  fprintf(fp_icg,"\n%c%c:",$1[2],$1[3]);
-			  strcpy($1,"");			  
+              block     { 
+			  fprintf(fp_icg,"\n%s:",$1);			  
                         }
+	     else_st 
 	   ;
-	  // | T_if { fprintf(fp_icg,"if "); } '(' condition ')' block ifelse T_else block ;	
+else_st    : T_else block
+	   | T_else if_st
+	   | else_st T_else if_st	
+	   | ;
+ 
+
+if_st_l	   : T_if { fprintf(fp_icg,"iffalse "); } 
+	     '(' 
+              condition { fprintf(fp_icg," go to ");  
+			  sprintf(buffer,"L%d",labelno); labelno++;		  
+			  fprintf(fp_icg,"%s\n",buffer); 	
+			  strcpy($1,buffer);
+			}
+              ')'  
+              block_l   { 
+			  fprintf(fp_icg,"\n%s:",$1);			  
+                        }
+	     else_st_l 
 	   ;
-ifelse     : ifelse T_else T_if '(' condition ')' block
-	   | T_else T_if '(' condition ')' block
-	   ;
+else_st_l  : T_else block_l
+	   | T_else if_st_l
+	   | else_st T_else if_st_l	
+	   | ;
+ 
 
 condition  : compare | expression  ;
 
@@ -207,8 +204,8 @@ expression : T_id '=' E ';' {
                 	       }
 			       
 			       
-			       fprintf(fp_icg,"%s = t%d\n",$1->name,--tempno); 
-			       tempno++;
+			       fprintf(fp_icg,"%s = %s\n",$1->name,$3->name); 
+			       
                 	       free($1);
 			       free($3);
 			   }
@@ -683,7 +680,9 @@ commachar:    ',' T_id commachar{
 %%
 
 int yyerror(char* err){
+	printf("\033[1;31m");	
 	printf("\nLine:%d %s\n",*line,err);
+	printf("\033[0m");
 }
 
 void free_mem(){
@@ -899,9 +898,7 @@ int main(){
 	fclose(fp_icg);
 	
 	system("'/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/abstract syntax tree/./a.out' < /home/abhishek/Desktop/cd/project/C_compiler_design/phase3/preprocessed_code.c");
-	printf("\033[1;32m");
-	printf("Abstract Syntax Tree genereated.\n\n");
-	printf("\033[0m");
+	
 
 	return 0;	
 

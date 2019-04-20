@@ -1,7 +1,15 @@
 		 ABSTRACT SYNTAX TREES
 
 
+( =  a  0 )
+
 ( =  a ( +  1 ( / ( *  2  3 ) 40 )))
 
 ( =  a ( - ( +  b  c ) d ))
+
+( if ( >  1  2 )( =  a  0 ))
+
+( if ( >  2  3 )( =  b  0 ))
+
+( while ( >  1  2 )( =  b  9 ))
 

@@ -31,7 +31,7 @@ FILE* fp;
 %token <fval> T_fltval
 %token <sval> T_id T_relop
 %token <cval> T_charval
-%type  <ptr>  factor exp term  expression condition compare if_st main block statements statement block_r block_l while_st stmnt_l stmnts_l
+%type  <ptr>  factor exp term  expression condition compare if_st if_st_l main block statements statement block_r block_l while_st stmnt_l stmnts_l
 %left "+" "-"
 %left "*" "/" "%"
 %right "^"
@@ -71,7 +71,7 @@ returnval  : T_intval | T_fltval | T_charval;
 statements : statement {$$=$1;}
 	   | statements statement {$1=$2;$$=$1;printtree($2);fprintf(fp,"\n\n");}
            ;
-statement  : decl | block | if_st| while_st | do_while | expression{ $$=$1;} | print | ';' ;
+statement  : decl | block | if_st {$$=$1;}| while_st | do_while | expression{ $$=$1;} | print | ';' ;
 
 print      : T_printf '(' T_string  ')' ';'  | T_printf '(' T_string ',' args ')' ';' ;
 
@@ -89,17 +89,25 @@ block_l	   : '{' stmnts_l '}' {$$=$2;}
 stmnts_l   : stmnt_l {$$=$1;} 
 	   | stmnts_l  stmnt_l {$1=$2;$$=$1;printtree($2);fprintf(fp,"\n\n");} ;
 
-stmnt_l    : decl | block | if_st | while_st | do_while | expression | print | loop_keywrd | ';' ;
+stmnt_l    : decl | block | if_st_l {$$=$1;}| while_st | do_while | expression{$$=$1;} | print | loop_keywrd | ';' ;
 
 loop_keywrd: T_break ';'  | T_continue ';' ;
 
-if_st	   : T_if '(' condition ')' block { $$ = mknode($3,$5,"if"); }
-	   | T_if '(' condition ')' block T_else block 
-	   | T_if '(' condition ')' block ifelse T_else block 
+       
+if_st	   : T_if '(' condition ')' block  else_st { $$ = mknode($3,$5,"if"); }
 	   ;
-ifelse     : ifelse T_else T_if '(' condition ')' block
-	   | T_else T_if '(' condition ')' block
+else_st    : T_else block
+	   | T_else if_st
+	   | else_st T_else if_st	
+	   | ;
+ 
+
+if_st_l	   : T_if '(' condition ')'block_l  else_st_l { $$ = mknode($3,$5,"if"); } 
 	   ;
+else_st_l  : T_else block_l
+	   | T_else if_st_l
+	   | else_st T_else if_st_l	
+	   | ;
 
 condition  : compare{$$=$1;} | expression{$$=$1;} ;
 
@@ -196,6 +204,9 @@ int main(){
 	yyparse();
 
 	fclose(fp);
+	printf("\033[1;32m");
+	printf("Abstract Syntax Tree genereated.\n\n");
+	printf("\033[0m");
 	
 	
 	return 0;	

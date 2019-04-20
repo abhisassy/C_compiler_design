@@ -7,35 +7,39 @@
 <),)>
 <{,{>
 <T_int,int>
-<T_id,(a) 0x713a9ef0>
+<T_id,(a) 0xfadc9ef0>
 <=,=>
 <T_intval,1>
 <,,,>
-<T_id,(b) 0x713a9f70>
+<T_id,(b) 0xfadc9f70>
 <=,=>
 <T_intval,2>
 <,,,>
-<T_id,(c) 0x713a9ff0>
+<T_id,(c) 0xfadc9ff0>
 <=,=>
 <T_intval,3>
 <,,,>
-<T_id,(d) 0x713aa070>
+<T_id,(d) 0xfadca070>
 <=,=>
 <T_intval,0>
 <,,,>
-<T_id,(e) 0x713aa0f0>
+<T_id,(e) 0xfadca0f0>
 <=,=>
 <T_intval,0>
 <,,,>
-<T_id,(f) 0x713aa170>
+<T_id,(f) 0xfadca170>
 <=,=>
 <T_intval,0>
 <,,,>
-<T_id,(G) 0x713aa1f0>
+<T_id,(G) 0xfadca1f0>
 <=,=>
 <T_intval,0>
 <;,;>
-<T_id,(a) 0x713a9ef0>
+<T_id,(a) 0xfadc9ef0>
+<=,=>
+<T_intval,0>
+<;,;>
+<T_id,(a) 0xfadc9ef0>
 <=,=>
 <T_intval,1>
 <+,+>
@@ -45,12 +49,55 @@
 </,/>
 <T_intval,40>
 <;,;>
-<T_id,(a) 0x713a9ef0>
+<T_id,(a) 0xfadc9ef0>
 <=,=>
-<T_id,(b) 0x713a9f70>
+<T_id,(b) 0xfadc9f70>
 <+,+>
-<T_id,(c) 0x713a9ff0>
+<T_id,(c) 0xfadc9ff0>
 <-,->
-<T_id,(d) 0x713aa070>
+<T_id,(d) 0xfadca070>
 <;,;>
+<T_if,if>
+<(,(>
+<T_intval,1>
+<>,T_relop>
+<T_intval,2>
+<),)>
+<{,{>
+<T_id,(a) 0xfadc9ef0>
+<=,=>
+<T_intval,0>
+<;,;>
+<},}>
+<T_if,if>
+<(,(>
+<T_intval,2>
+<>,T_relop>
+<T_intval,3>
+<),)>
+<{,{>
+<T_id,(b) 0xfadc9f70>
+<=,=>
+<T_intval,0>
+<;,;>
+<},}>
+<T_else,else>
+<{,{>
+<T_id,(b) 0xfadc9f70>
+<=,=>
+<T_intval,77>
+<;,;>
+<},}>
+<T_while,while>
+<(,(>
+<T_intval,1>
+<>,T_relop>
+<T_intval,2>
+<),)>
+<{,{>
+<T_id,(b) 0xfadc9f70>
+<=,=>
+<T_intval,9>
+<;,;>
+<},}>
 <},}>

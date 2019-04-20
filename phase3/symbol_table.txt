@@ -1,7 +1,7 @@
 						 SYMBOL TABLE
 
-name=a			datatype=integer		line=4		value= 5		scope=1
-name=b			datatype=integer		line=4		value= 2		scope=1
+name=a			datatype=integer		line=4		value= 0		scope=1
+name=b			datatype=integer		line=4		value= 9		scope=1
 name=c			datatype=integer		line=4		value= 3		scope=1
 name=d			datatype=integer		line=4		value= 0		scope=1
 name=e			datatype=integer		line=4		value= 0		scope=1
