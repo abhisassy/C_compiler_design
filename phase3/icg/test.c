@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 void main(){
-	int a,b=-1,c=0;
+	int a,b=-1,c=0,d=9;
 	//a =b+c; // + 1 2 t1
 
 	if(1>2){
@@ -17,6 +17,9 @@ void main(){
 		a =8;
 	}
 	
+	a=1+2*3/40;
+	a=b+c-d;
+
 	//return 0;
 }
 

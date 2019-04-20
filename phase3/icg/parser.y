@@ -67,6 +67,7 @@ typedef struct symbol_table symtbl;
 start: main { 
 				printf("\033[1;32m");
 				printf("\n\nParsing Done.\n");
+				printf("\nSymbol Table & Tokens list Generated.\n");
 				printf("\nICG Generated.\n\n");								
 				printf("\033[0m");
 				print_symboltable();
@@ -881,10 +882,10 @@ int main(){
 	printf("\033[1;32m");
 	printf("\n\nLex and Parser started..\n\n");
 	printf("\033[0m");
-	fp        = fopen("intermediate_code/preprocessed_code.c","w");
-	fp_symtbl = fopen("symbol_table/symbol_table.txt","w");
-	fp_lex    = fopen("symbol_table/tokens.txt","w"); 
-	fp_icg    = fopen("intermediate_code/icg.txt","w");
+	fp        = fopen("/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/preprocessed_code.c","w");
+	fp_symtbl = fopen("/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/symbol_table.txt","w");
+	fp_lex    = fopen("/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/tokens.txt","w"); 
+	fp_icg    = fopen("/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/icg.txt","w");
 
 	fprintf(fp_lex,"\n\t\t TOKENS LIST\n\n") ;
 	fprintf(fp_icg,"\n\t\t Intermediate Code Generation\n\n");
@@ -896,6 +897,12 @@ int main(){
 	fclose(fp_symtbl);
 	fclose(fp_lex);
 	fclose(fp_icg);
+	
+	system("'/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/abstract syntax tree/./a.out' < /home/abhishek/Desktop/cd/project/C_compiler_design/phase3/preprocessed_code.c");
+	printf("\033[1;32m");
+	printf("Abstract Syntax Tree genereated.\n\n");
+	printf("\033[0m");
+
 	return 0;	
 
 }

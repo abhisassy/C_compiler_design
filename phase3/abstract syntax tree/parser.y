@@ -12,7 +12,7 @@ void printtree(node *tree);
 
 char buffer[100];
 FILE* fp;
-extern FILE* yyin;
+
 %}
 
 %union
@@ -190,14 +190,13 @@ void printtree(node *tree)
  fprintf(fp,")");
 }
 int main(){
-	fp = fopen("AbstactSyntaxTree.txt","w");
+	fp = fopen("/home/abhishek/Desktop/cd/project/C_compiler_design/phase3/AbstactSyntaxTree.txt","w");
 	fprintf(fp,"\t\t ABSTRACT SYNTAX TREES\n\n\n");
-	
-	yyin = fopen("preprocessed_code.c","r");	
+		
 	yyparse();
 
 	fclose(fp);
-	fclose(yyin);
+	
 	
 	return 0;	
 
