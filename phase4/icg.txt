@@ -9,18 +9,24 @@ t2 = 1 + t1
 a = t2
 t3 = b + c
 t4 = t3 - d
-a = t4
-iffalse 1 > 2 go to L0
+t2 = t4
+t4 = 8
+iffalse 2 > 8  go to L0
 a = 0
 
-L0:iffalse 2 > 3 go to L1
-b = 0
+L0:iffalse 2 > 3  go to L1
+b = 8
 
 L1:b = 77
-L2: iffalse 1 > 2 go to L3
+L2: iffalse 1 > 2  go to L3
 b = 9
 go to L2
 L3:c = d
-t5 = a + c
+t5 = f + d
 e = t5
+d = G
+t6 = b + G
+t5 = t6
+t7 = t6 * 8
+G = t6
 .end

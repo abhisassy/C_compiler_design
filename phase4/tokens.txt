@@ -1,0 +1,133 @@
+
+		 TOKENS LIST
+
+<T_void,void>
+<T_main,main>
+<(,(>
+<),)>
+<{,{>
+<T_int,int>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_intval,1>
+<,,,>
+<T_id,(b) 0x8cc10f90>
+<=,=>
+<T_intval,2>
+<,,,>
+<T_id,(c) 0x8cc11030>
+<=,=>
+<T_intval,3>
+<,,,>
+<T_id,(d) 0x8cc110d0>
+<=,=>
+<T_intval,0>
+<,,,>
+<T_id,(e) 0x8cc11170>
+<=,=>
+<T_intval,0>
+<,,,>
+<T_id,(f) 0x8cc11210>
+<=,=>
+<T_intval,0>
+<,,,>
+<T_id,(G) 0x8cc112b0>
+<=,=>
+<T_intval,0>
+<;,;>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_intval,0>
+<;,;>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_intval,1>
+<+,+>
+<T_intval,2>
+<*,*>
+<T_intval,3>
+</,/>
+<T_intval,40>
+<;,;>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_id,(b) 0x8cc10f90>
+<+,+>
+<T_id,(c) 0x8cc11030>
+<-,->
+<T_id,(d) 0x8cc110d0>
+<;,;>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_intval,8>
+<;,;>
+<T_if,if>
+<(,(>
+<T_intval,2>
+<>,T_relop>
+<T_id,(a) 0x8cc10ef0>
+<),)>
+<{,{>
+<T_id,(a) 0x8cc10ef0>
+<=,=>
+<T_intval,0>
+<;,;>
+<},}>
+<T_if,if>
+<(,(>
+<T_intval,2>
+<>,T_relop>
+<T_intval,3>
+<),)>
+<{,{>
+<T_id,(b) 0x8cc10f90>
+<=,=>
+<T_id,(a) 0x8cc10ef0>
+<;,;>
+<},}>
+<T_else,else>
+<{,{>
+<T_id,(b) 0x8cc10f90>
+<=,=>
+<T_intval,77>
+<;,;>
+<},}>
+<T_while,while>
+<(,(>
+<T_intval,1>
+<>,T_relop>
+<T_intval,2>
+<),)>
+<{,{>
+<T_id,(b) 0x8cc10f90>
+<=,=>
+<T_intval,9>
+<;,;>
+<},}>
+<T_id,(c) 0x8cc11030>
+<=,=>
+<T_id,(d) 0x8cc110d0>
+<;,;>
+<T_id,(e) 0x8cc11170>
+<=,=>
+<T_id,(f) 0x8cc11210>
+<+,+>
+<T_id,(c) 0x8cc11030>
+<;,;>
+<T_id,(c) 0x8cc11030>
+<=,=>
+<T_id,(G) 0x8cc112b0>
+<;,;>
+<T_id,(e) 0x8cc11170>
+<=,=>
+<T_id,(b) 0x8cc10f90>
+<+,+>
+<T_id,(c) 0x8cc11030>
+<;,;>
+<T_id,(G) 0x8cc112b0>
+<=,=>
+<T_id,(e) 0x8cc11170>
+<*,*>
+<T_id,(a) 0x8cc10ef0>
+<;,;>
+<},}>
