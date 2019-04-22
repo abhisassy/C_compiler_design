@@ -7,7 +7,8 @@ void main(){
 	a=b+c-d;
 	a=8;
 	
-	if(2>a){ a =0;}
+	if(2>a){ a =0;
+}
 	if(2>3){ b =a;}
 	else {b =77;}
 	

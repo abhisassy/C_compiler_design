@@ -970,14 +970,15 @@ int main(){
 	fprintf(fp_icg,"\n\t\t Intermediate Code Generation\n\n");
 	fprintf(fp_icg,".begin\n");
 	
-	yyparse();
+	int res = yyparse();
 	fprintf(fp_icg,".end\n");
 	fclose(fp);
 	fclose(fp_symtbl);
 	fclose(fp_lex);
 	fclose(fp_icg);
 	
-	system("'/home/abhishek/Desktop/cd/project/C_compiler_design/phase4/abstract syntax tree/./a.out' < /home/abhishek/Desktop/cd/project/C_compiler_design/phase4/preprocessed_code.c");
+	if(res==0)
+		system("'/home/abhishek/Desktop/cd/project/C_compiler_design/phase4/abstract syntax tree/./a.out' < /home/abhishek/Desktop/cd/project/C_compiler_design/phase4/preprocessed_code.c");
 	
 
 	return 0;	
