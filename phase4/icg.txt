@@ -11,17 +11,26 @@ t3 = b + c
 t4 = t3 - d
 t2 = t4
 t4 = 8
-iffalse 2 > 8  go to L0
+iffalse 2 > 8 go to L0
 a = 0
 
-L0:iffalse 2 > 3  go to L1
+L0:iffalse 2 > 3 go to L1
 b = 8
+go to L2
 
 L1:b = 77
-L2: iffalse 1 > 2  go to L3
+L2:iffalse 1 > 2 go to L3
+a = 0
+go to L4
+L3:iffalse 2 > 4 go to L5
+a = 1
+go to L4
+
+L5:a = 9
+L4:L7: iffalse 1 > 2  go to L8
 b = 9
-go to L2
-L3:c = d
+go to L7
+L8:c = d
 t5 = f + d
 e = t5
 d = G

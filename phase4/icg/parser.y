@@ -14,9 +14,9 @@ char current_scope[30];
 int  count[30]={0};
 int  inside_function=0;
 int  ln=0,tempno=0,labelno=0;
-char buffer[100];
+char buffer[100],buffer2[100];
 char list_for_potential_copy_prop[100][30];
-int  inside_cnd_branch=0;
+int  inside_cnd_branch=0, true_val=0;
 
 struct symbol_table{
 	
@@ -59,7 +59,7 @@ typedef struct symbol_table symtbl;
 %token <cval> T_charval
 %type  <ptr>  E F
 %type  <ival> datatype
-%type  <sval> T_relop T_if T_while condition
+%type  <sval> T_relop T_if T_while condition T_else
 
 
 %left '+' '-'
@@ -142,39 +142,46 @@ loop_keywrd: T_break ';'  | T_continue ';' ;
        
 if_st	   : T_if { fprintf(fp_icg,"iffalse "); inside_cnd_branch=1; } 
 	     '(' 
-              condition { fprintf(fp_icg," go to ");  
-			  sprintf(buffer,"L%d",labelno); labelno++;		  
-			  fprintf(fp_icg,"%s\n",buffer); 	
-			  strcpy($1,buffer);
+              condition { fprintf(fp_icg,"go to ");  
+			  sprintf(buffer2,"L%d",labelno); labelno++;		  
+			  fprintf(fp_icg,"%s\n",buffer2); 	
+			 
 			}
               ')'  
-              block     { 
-			  fprintf(fp_icg,"\n%s:",$1);	 		  
-                        }
-	     else_st 
+              block     
+	      else_st 
 	   ;
-else_st    : T_else block
-	   | T_else if_st
-	   | else_st T_else if_st	
-	   | {inside_cnd_branch=0;};
+else_st    : T_else {	  fprintf(fp_icg,"go to ");  
+			  if(true_val!=0){sprintf(buffer,"L%d",true_val);} 
+			  else{sprintf(buffer,"L%d",labelno);} labelno++; true_val=0;		  
+			  fprintf(fp_icg,"%s\n",buffer); 
+			  strcpy($1,buffer);
+			  fprintf(fp_icg,"\n%s:",buffer2);	
+		    }
+             block  {      fprintf(fp_icg,"%s:",$1);  }
+	   | T_else { true_val = labelno; labelno++;fprintf(fp_icg,"go to L%d\n%s:",true_val,buffer2);} if_st 	
+	   | {fprintf(fp_icg,"\n%s:",buffer2);inside_cnd_branch=0;};
  
 
 if_st_l	   : T_if { fprintf(fp_icg,"iffalse "); inside_cnd_branch=1;} 
 	     '(' 
-              condition { fprintf(fp_icg," go to ");  
-			  sprintf(buffer,"L%d",labelno); labelno++;		  
-			  fprintf(fp_icg,"%s\n",buffer); 	
-			  strcpy($1,buffer);
+              condition { fprintf(fp_icg,"go to ");  
+			  sprintf(buffer2,"L%d",labelno); labelno++;		  
+			  fprintf(fp_icg,"%s\n",buffer2); 
 			}
               ')'  
-              block_l   { 
-			  fprintf(fp_icg,"\n%s:",$1);			  
-                        }
+             block_l   
 	     else_st_l 
 	   ;
-else_st_l  : T_else block_l
-	   | T_else if_st_l
-	   | else_st T_else if_st_l	
+else_st_l  : T_else {	  fprintf(fp_icg,"go to ");  
+			  if(true_val!=0){sprintf(buffer,"L%d",true_val);} 
+			  else{sprintf(buffer,"L%d",labelno);} labelno++; true_val=0;		  
+			  fprintf(fp_icg,"%s\n",buffer); 
+			  strcpy($1,buffer);
+			  fprintf(fp_icg,"\n%s:",buffer2);	
+		    }
+	     block_l {      fprintf(fp_icg,"%s:",$1);  }
+	   | T_else  { true_val = labelno; labelno++;fprintf(fp_icg,"go to L%d\n%s:",true_val,buffer2);} if_st_l	
 	   | {inside_cnd_branch=0;};
  
 
