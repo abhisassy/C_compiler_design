@@ -450,8 +450,8 @@ E:      E '+' E {
                             tmp->data_type=1;
                             printf("Datatype mismatch in line : %d\nTrying to perform error correction\n",*line);
                             if(($3->data_type)==1) {
-				    if($1->val.i!=0)
-                                   	 tmp->val.f=($3->val.f)/($1->val.i);
+				    if($3->val.i!=0)
+                                   	 tmp->val.f=($1->val.f)/($3->val.i);
 				    else{
 					printf("\033[1;31m");
 					printf("\nerror: ");
@@ -460,8 +460,8 @@ E:      E '+' E {
 					}
                             }
                             else {
-				    if($1->val.f!=0)
-                                   	 tmp->val.f=($3->val.i)/($1->val.f);
+				    if($3->val.f!=0)
+                                   	 tmp->val.f=($1->val.i)/($3->val.f);
 				    else{
 					printf("\033[1;31m");
 					printf("\nerror: ");
@@ -474,8 +474,8 @@ E:      E '+' E {
                     else {
                             if($1->data_type==0) {
                                     tmp->data_type=0;
-				    if($1->val.i!=0)
-                                   	 {tmp->val.i=($3->val.i)/($1->val.i);$1->val.i=tmp->val.i;}
+				    if($3->val.i!=0)
+                                   	 {tmp->val.i=($1->val.i)/($3->val.i);$1->val.i=tmp->val.i;}
 
 				    else{
 					printf("\033[1;31m");
@@ -487,8 +487,8 @@ E:      E '+' E {
                             }
                             else if($1->data_type==1) {
                             	    tmp->data_type=1;
-				    if($1->val.i!=0)
-                                   	 {tmp->val.f=($3->val.f)/($1->val.f);$1->val.f=tmp->val.f;}
+				    if($3->val.i!=0)
+                                   	 {tmp->val.f=($1->val.f)/($3->val.f);$1->val.f=tmp->val.f;}
 				    else{
 					printf("\033[1;31m");
 					printf("\nerror: ");

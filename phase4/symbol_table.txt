@@ -1,9 +1,9 @@
 						 SYMBOL TABLE
 
-name=a			datatype=integer		line=4		value= 9		scope=1
-name=b			datatype=integer		line=4		value= 9		scope=1
-name=c			datatype=integer		line=4		value= 0		scope=1
-name=d			datatype=integer		line=4		value= 0		scope=1
-name=e			datatype=integer		line=4		value= 9		scope=1
-name=f			datatype=integer		line=4		value= 0		scope=1
-name=G			datatype=integer		line=4		value= 81		scope=1
+name=a			datatype=integer		line=8		value= 7		scope=1
+name=b			datatype=integer		line=8		value= 9		scope=1
+name=c			datatype=integer		line=8		value= 0		scope=1
+name=d			datatype=integer		line=8		value= 0		scope=1
+name=e			datatype=integer		line=8		value= 9		scope=1
+name=f			datatype=integer		line=8		value= 0		scope=1
+name=G			datatype=integer		line=8		value= 63		scope=1

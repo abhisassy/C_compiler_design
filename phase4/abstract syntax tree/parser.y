@@ -31,7 +31,7 @@ FILE* fp;
 %token <fval> T_fltval
 %token <sval> T_id T_relop
 %token <cval> T_charval
-%type  <ptr>  factor exp term  expression condition compare if_st if_st_l main block statements statement block_r block_l while_st stmnt_l stmnts_l
+%type  <ptr>  factor exp term  expression condition compare if_st if_st_l main block statements statement block_r block_l while_st stmnt_l stmnts_l else_st
 %left "+" "-"
 %left "*" "/" "%"
 %right "^"
@@ -94,19 +94,17 @@ stmnt_l    : decl | block | if_st_l {$$=$1;}| while_st | do_while | expression{$
 loop_keywrd: T_break ';'  | T_continue ';' ;
 
        
-if_st	   : T_if '(' condition ')' block  else_st { $$ = mknode($3,$5,"if"); }
+if_st	   : T_if '(' condition ')' block  else_st { $$ = mknode(mknode($3,$5,"if"),$6,"branch"); }
 	   ;
-else_st    : T_else block
-	   | T_else if_st
-	   | else_st T_else if_st	
+else_st    : T_else block { { $$ = mknode($2,0,"else"); } }
+	   | T_else if_st { $$ = $2;}	
 	   | ;
  
 
-if_st_l	   : T_if '(' condition ')'block_l  else_st_l { $$ = mknode($3,$5,"if"); } 
+if_st_l	   : T_if '(' condition ')'block_l  else_st_l { $$ = mknode(mknode($3,$5,"if"),$6,"branch");} 
 	   ;
-else_st_l  : T_else block_l
-	   | T_else if_st_l
-	   | else_st T_else if_st_l	
+else_st_l  : T_else block_l { $$ = mknode($2,0,"else"); }
+	   | T_else if_st_l	
 	   | ;
 
 condition  : compare{$$=$1;} | expression{$$=$1;} ;
@@ -169,7 +167,7 @@ commachar:    ',' T_id commachar
 %%
 
 int yyerror(char* err){
-	printf("%s\n",err);
+	//printf("%s\n",err);
 }
 
 

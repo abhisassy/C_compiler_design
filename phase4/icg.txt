@@ -7,35 +7,20 @@ t0 = 2 * 3
 t1 = t0 / 40
 t2 = 1 + t1
 a = t2
-t3 = b + c
-t4 = t3 - d
-t2 = t4
-t4 = 8
-iffalse 2 > 8 go to L0
-a = 0
+iffalse 2 > t2 go to L0
+t2 = 0
+go to L1
 
-L0:iffalse 2 > 3 go to L1
-b = 8
-go to L2
-
-L1:b = 77
-L2:iffalse 1 > 2 go to L3
-a = 0
-go to L4
-L3:iffalse 2 > 4 go to L5
-a = 1
-go to L4
-
-L5:a = 9
-L4:L7: iffalse 1 > 2  go to L8
+L0:t2 = 7
+L1:L2: iffalse 1 > 2  go to L3
 b = 9
-go to L7
-L8:c = d
-t5 = f + d
-e = t5
+go to L2
+L3:c = d
+t3 = f + d
+e = t3
 d = G
-t6 = b + G
-t5 = t6
-t7 = t6 * 8
-G = t6
+t4 = b + G
+t3 = t4
+t5 = t4 * t2
+G = t4
 .end
